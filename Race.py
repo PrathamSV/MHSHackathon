@@ -3,7 +3,7 @@ from colorama import Fore
 
 
 class Car:
-    def __init__(self, speed=10, health=100):
+    def __init__(self, speed: int = 10, health: int = 100) -> None:
         self.speed = speed
         self.health = health
         self.progress = 0
@@ -11,36 +11,36 @@ class Car:
         self.is_spiked = [False, 0]
         self.is_overheated = [False, 0]
 
-    def change_health(self, amount):
+    def change_health(self, amount: int) -> None:
         self.health += self.health * (amount / 100)
 
-    def change_speed(self, amount):
+    def change_speed(self, amount: int) -> None:
         self.speed += self.speed * (amount / 100)
 
-    def update_progress(self):
+    def update_progress(self) -> int:
         self.progress += int(self.speed / 10)
         if self.health <= 0:
             self.sprite = 'DED'
         return self.progress
-    
+
     # spike and overheat don't stack w/ themselves
-    def spike(self):
+    def spike(self) -> None:
         self.change_speed(-10)
         self.is_spiked = [True, 15]
 
-    def overheat(self):
+    def overheat(self) -> None:
         self.change_speed(-30)
         self.is_overheated = [True, 3]
 
 
 class Race:
-    def __init__(self, p1: Car, p2: Car):
+    def __init__(self, p1: Car, p2: Car) -> None:
         self.p1 = p1
         self.p2 = p2
         self.call_dict = {1: v8, 2: chassis, 3: fix, 4: repair, 5: nothing, 6: nothing, 7: nothing, 8: spikes,
-                          9: hammer, 10: explosive, 11: overheat, 12: nothing, 13: speed_limit, 14:nothing}
+                          9: hammer, 10: explosive, 11: overheat, 12: nothing, 13: speed_limit, 14: nothing}
 
-    def has_p1_won(self):
+    def has_p1_won(self) -> bool:
         if self.p2.health <= 0:
             print('p2 destroyed')
             return True
@@ -49,7 +49,7 @@ class Race:
             return True
         return False
 
-    def has_p2_won(self):
+    def has_p2_won(self) -> bool:
         if self.p1.health <= 0:
             print('p1 destroyed')
             return True
@@ -58,7 +58,7 @@ class Race:
             return True
         return False
 
-    def update_progress(self, turn, card=1):
+    def update_progress(self, turn: int, card: int) -> None:
         # spikes p1
         if self.p1.is_spiked[0]:
             self.p1.change_speed(-p1.is_spiked[1])
@@ -102,7 +102,7 @@ class Race:
             # update
             self.p2.update_progress()
 
-    def print_progress(self):
+    def print_progress(self) -> None:
         print(Fore.BLUE + "P1: " + (30 - p1.progress) * '_' + p1.sprite + (p1.progress * '_'))
         print(Fore.RED + "P2: " + (30 - p2.progress) * '_' + p2.sprite + (p2.progress * '_'))
         if self.has_p1_won():
@@ -112,13 +112,13 @@ class Race:
 
         print(Fore.WHITE, end='')
 
-    def v8(self, player):
+    def v8(self, player: int) -> None:
         if player == 1:
             self.p1.change_speed(20)
         elif player == 2:
             self.p2.change_speed(20)
 
-    def chassis(self, player):
+    def chassis(self, player: int) -> None:
         if player == 1:
             self.p1.change_speed(30)
             self.p1.change_health(-10)
@@ -126,7 +126,7 @@ class Race:
             self.p2.change_speed(30)
             self.p2.change_health(-10)
 
-    def fix(self, player):
+    def fix(self, player: int) -> None:
         if player == 1:
             self.p1.is_spiked = [False, 0]
             if self.p1.is_overheated[0]:
@@ -138,25 +138,25 @@ class Race:
                 self.p2.change_speed(self.p2.is_overheated[1] * 10)
                 self.p2.is_overheated = [False, 0]
 
-    def repair(self, player):
+    def repair(self, player: int) -> None:
         if player == 1:
             self.p1.change_health(20)
         elif player == 2:
             self.p2.change_health(20)
 
-    def spikes(self, player):
+    def spikes(self, player: int) -> None:
         if player == 1:
             self.p2.spike()
         elif player == 2:
             self.p1.spike()
 
-    def hammer(self, player):
+    def hammer(self, player: int) -> None:
         if player == 1:
             self.p2.change_health(-20)
         elif player == 2:
             self.p1.change_health(-20)
 
-    def explosive(self, player):
+    def explosive(self, player: int) -> None:
         if player == 1:
             self.p2.change_health(-30)
             if random.choice([True, False]):
@@ -166,13 +166,13 @@ class Race:
             if random.choice([True, False]):
                 self.p2.change_health(-10)
 
-    def overheat(self, player):
+    def overheat(self, player: int) -> None:
         if player == 1:
             self.p2.overheat()
         elif player == 2:
             self.p1.overheat()
-    
-    def speed_limit(self, player):
+
+    def speed_limit(self, player: int) -> None:
         limit = random.randint(20, 80)
         if player == 1:
             if self.p2.speed >= limit:
@@ -184,7 +184,6 @@ class Race:
                 self.p1.change_speed(-30)
             if self.p2.speed >= limit and random.choice([True, False]):
                 self.p2.change_speed(-10)
-    
+
     def nothing(self, _):  # do nothing
         pass
-    
