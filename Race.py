@@ -3,7 +3,7 @@ from colorama import Fore
 
 
 class Car:
-    def __init__(self, speed: int = 10, health: int = 100) -> None:
+    def __init__(self, speed: int = 30, health: int = 100) -> None:
         self.speed = speed
         self.health = health
         self.progress = 0
@@ -12,10 +12,16 @@ class Car:
         self.is_overheated = [False, 0]
 
     def change_health(self, amount: int) -> None:
-        self.health += self.health * (amount / 100)
+        if self.health + amount >= 0:
+            self.health += amount
+        else:
+            self.health = 0
 
     def change_speed(self, amount: int) -> None:
-        self.speed += self.speed * (amount / 100)
+        if self.speed + amount >= 0:
+            self.speed += amount
+        else:
+            self.speed = 0
 
     def update_progress(self) -> int:
         self.progress += int(self.speed / 10)
@@ -29,8 +35,8 @@ class Car:
         self.is_spiked = [True, 15]
 
     def overheat(self) -> None:
-        self.change_speed(-30)
-        self.is_overheated = [True, 3]
+        self.change_health(-25)
+        self.is_overheated = [True, 2]
 
 
 class Race:
@@ -72,7 +78,7 @@ class Race:
             if self.p1.is_overheated[1] <= 0:
                 self.p1.is_overheated = [False, 0]
             else:
-                self.p1.change_speed(10)
+                self.p1.change_health(-(self.p1.is_overheated[1] * 5))
                 self.p1.is_overheated[1] -= 1
 
         # spikes p2
@@ -88,7 +94,7 @@ class Race:
             if self.p2.is_overheated[1] <= 0:
                 self.p2.is_overheated = [False, 0]
             else:
-                self.p2.change_speed(10)
+                self.p2.change_health(-(self.p2.is_overheated[1] * 5))
                 self.p2.is_overheated[1] -= 1
 
         if turn % 2 == 1:
@@ -129,14 +135,10 @@ class Race:
     def fix(self, player: int) -> None:
         if player == 1:
             self.p1.is_spiked = [False, 0]
-            if self.p1.is_overheated[0]:
-                self.p1.change_speed(self.p1.is_overheated[1] * 10)
-                self.p1.is_overheated = [False, 0]
+            self.p1.is_overheated = [False, 0]
         elif player == 2:
             self.p2.is_spiked = [False, 0]
-            if self.p2.is_overheated[0]:
-                self.p2.change_speed(self.p2.is_overheated[1] * 10)
-                self.p2.is_overheated = [False, 0]
+            self.p2.is_overheated = [False, 0]
 
     def repair(self, player: int) -> None:
         if player == 1:
