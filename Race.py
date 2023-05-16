@@ -1,6 +1,7 @@
 import random
 from colorama import Fore
 
+
 class Car:
     def __init__(self, speed=10, health=100):
         self.speed = speed
@@ -21,11 +22,14 @@ class Car:
         if self.health <= 0:
             self.sprite = 'DED'
         return self.progress
-
+    
+    # spike and overheat don't stack w/ themselves
     def spike(self):
-        self.is_spiked = [True, 10]
+        self.change_speed(-10)
+        self.is_spiked = [True, 15]
 
     def overheat(self):
+        self.change_speed(-30)
         self.is_overheated = [True, 3]
 
 
@@ -33,7 +37,8 @@ class Race:
     def __init__(self, p1: Car, p2: Car):
         self.p1 = p1
         self.p2 = p2
-        self.call_dict = {1: V8, 2: chassis, 3: fix, 4: repair, 8: spikes, 9: hammer, 10: explosive, 11: overheat}
+        self.call_dict = {1: v8, 2: chassis, 3: fix, 4: repair, 5: nothing, 6: nothing, 7: nothing, 8: spikes,
+                          9: hammer, 10: explosive, 11: overheat, 12: nothing, 13: speed_limit, 14:nothing}
 
     def has_p1_won(self):
         if self.p2.health <= 0:
@@ -107,7 +112,7 @@ class Race:
 
         print(Fore.WHITE, end='')
 
-    def V8(self, player):
+    def v8(self, player):
         if player == 1:
             self.p1.change_speed(20)
         elif player == 2:
@@ -124,10 +129,14 @@ class Race:
     def fix(self, player):
         if player == 1:
             self.p1.is_spiked = [False, 0]
-            self.p1.is_overheated = [False, 0]
+            if self.p1.is_overheated[0]:
+                self.p1.change_speed(self.p1.is_overheated[1] * 10)
+                self.p1.is_overheated = [False, 0]
         elif player == 2:
             self.p2.is_spiked = [False, 0]
-            self.p2.is_overheated = [False, 0]
+            if self.p2.is_overheated[0]:
+                self.p2.change_speed(self.p2.is_overheated[1] * 10)
+                self.p2.is_overheated = [False, 0]
 
     def repair(self, player):
         if player == 1:
@@ -152,14 +161,30 @@ class Race:
             self.p2.change_health(-30)
             if random.choice([True, False]):
                 self.p1.change_health(-10)
-        if player == 2:
+        elif player == 2:
             self.p1.change_health(-30)
             if random.choice([True, False]):
                 self.p2.change_health(-10)
-                
+
     def overheat(self, player):
         if player == 1:
             self.p2.overheat()
-        if player == 2:
+        elif player == 2:
             self.p1.overheat()
-            
+    
+    def speed_limit(self, player):
+        limit = random.randint(20, 80)
+        if player == 1:
+            if self.p2.speed >= limit:
+                self.p2.change_speed(-30)
+            if self.p1.speed >= limit and random.choice([True, False]):
+                self.p1.change_speed(-10)
+        elif player == 2:
+            if self.p1.speed >= limit:
+                self.p1.change_speed(-30)
+            if self.p2.speed >= limit and random.choice([True, False]):
+                self.p2.change_speed(-10)
+    
+    def nothing(self, _):  # do nothing
+        pass
+    
