@@ -29,9 +29,6 @@ class Car:
         self.is_overheated = [True, 3]
 
 
-
-
-
 class Race:
     def __init__(self, p1: Car, p2: Car):
         self.p1 = p1
