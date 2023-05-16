@@ -58,6 +58,6 @@ for i in range(3):
 race = Race()
 while True:
     card = play()
-    race.update_progress(2 if turn % 2 == 0 else 1, card)
+    race.update_progress(turn, card)
     if race.has_p1_won() or race.has_p2_won():
         break
