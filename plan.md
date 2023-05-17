@@ -17,7 +17,7 @@ cards = {1:"V8 Engine", 2:"Carbon-fiber Chassis", 3:"Fix", 4:"Repair", 5:"Camera
 
   - Spare Parts: Refresh deck
 
-  - Asset: increase in all initial effects by +10. Doesn't work with Camera. If used with Spare Parts, allows you to play refreshed card. With Fix, protects from all traps
+  - Asset: increase in all initial effects by +10. Doesn't work with Camera. If used with Spare Parts, allows you to play with refreshed cards. With Fix, protects from all traps
 
   - Spikes: -10 speed, -15, and -20 on subsequent turns
   - Hammer: -20 health
