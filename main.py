@@ -1,6 +1,6 @@
 # 1-7: Upgrades, 8-14: Traps
 import random
-from race import Race, Car
+from Race import Race, Car
 from colorama import Fore
 
 cards = {1: "V8 Engine", 2: "Carbon-fiber Chassis", 3: "Fix", 4: "Repair", 5: "Camera", 6: "Spare Parts", 7: "Asset",
@@ -13,7 +13,6 @@ turn = 1
 hand1 = []  # P1's hand
 hand2 = []  # P2's hand
 power = False
-
 
 # Shuffles deck when cards are done
 def shuffle():
@@ -33,6 +32,11 @@ def draw():
     check()
     return x
 
+def draw_():
+    global deck
+    x = deck.pop()
+    shuffle()
+    return x
 
 def view(player, camera):
     if player == 1:
@@ -68,11 +72,11 @@ def check():
     while not x:
         if check1():
             discard.append(hand1.pop())
-            hand1.append(draw())
+            hand1.append(draw_())
             x = False
         elif check2():
             discard.append(hand2.pop())
-            hand2.append(draw())
+            hand2.append(draw_())
             x = False
         else:
             x = True
@@ -122,13 +126,16 @@ def play():
                     hand2 = [draw(), draw()]
         elif x == 12:
             if turn % 2 == 1:
-                print(Fore.YELLOW + "You have removed " + str(cards[hand2.pop(random.randint(0, 2))]) + " from your Opponent's hand." + Fore.WHITE)
+                print(Fore.YELLOW + "You have removed " + str(
+                    cards[hand2.pop(random.randint(0, 2))]) + " from your Opponent's hand." + Fore.WHITE)
                 hand2.append(draw())
             else:
-                print(Fore.YELLOW + "You have removed " + str(cards[hand1.pop(random.randint(0, 2))]) + " from your Opponent's hand." + Fore.WHITE)
+                print(Fore.YELLOW + "You have removed " + str(
+                    cards[hand1.pop(random.randint(0, 2))]) + " from your Opponent's hand." + Fore.WHITE)
                 hand1.append(draw())
         elif x == 7:
-            if (turn % 2 == 1 and (hand1[0] > 6 or hand1[0] == 5) and (hand1[0] > 6 or hand1[0] == 5)) or (turn % 2 == 0 and (hand2[0] > 6 or hand2[0] == 5) and (hand2[0] > 6 or hand2[0] == 5)):
+            if (turn % 2 == 1 and (hand1[0] > 6 or hand1[0] == 5) and (hand1[1] > 6 or hand1[1] == 5)) or (
+                    turn % 2 == 0 and (hand2[0] > 6 or hand2[0] == 5) and (hand2[1] > 6 or hand2[1] == 5)):
                 print("You don't have any upgrade cards to play the asset with.")
                 if turn % 2 == 0:
                     hand2.append(7)
@@ -138,9 +145,11 @@ def play():
             else:
                 y = "0"
                 while True:
-                    while y != 1 and y != 2:
+                    while y != "1" and y != "2":
                         y = input("Choose an upgrade card (not camera) to play the asset with: (Pick 1 or 2):")
-                    if (turn % 2 == 1 and (hand1[int(y) - 1] > 6 or hand1[int(y) - 1] == 5)) or (turn % 2 == 0 and (hand2[int(y) - 1] > 6 or hand2[int(y) - 1] == 5)):
+                    if (turn % 2 == 1 and (hand1[int(y) - 1] > 6 or hand1[int(y) - 1] == 5)) or (
+                            turn % 2 == 0 and (hand2[int(y) - 1] > 6 or hand2[int(y) - 1] == 5)):
+                        y = "0"
                         continue
                     break
                 if turn % 2 == 1:
@@ -155,13 +164,16 @@ def play():
                 if x == 6:
                     print(Fore.YELLOW + "You got another turn with fresh cards!")
                     if turn % 2 == 1:
-                        hand1 = [draw(), draw(), draw()]
-                        play()
+                        hand1 = [draw_(), draw_(), draw_()]
+                        check()
+                        continue
                     else:
-                        hand2 = [draw(), draw(), draw()]
-                        play()
+                        hand2 = [draw_(), draw_(), draw_()]
+                        check()
+                        continue
         elif x == 14:
-            if (turn % 2 == 1 and (hand1[0] < 8 or hand1[0] == 14) and (hand1[0] < 8 or hand1[0] == 14)) or (turn % 2 == 0 and (hand2[0] < 8 or hand2[0] == 14) and (hand2[0] < 8 or hand2[0] == 14)):
+            if (turn % 2 == 1 and (hand1[0] < 8 or hand1[0] == 14) and (hand1[1] < 8 or hand1[1] == 14)) or (
+                    turn % 2 == 0 and (hand2[0] < 8 or hand2[0] == 14) and (hand2[1] < 8 or hand2[1] == 14)):
                 print("You don't have any trap cards to play the liability with.")
                 if turn % 2 == 0:
                     hand2.append(14)
@@ -171,34 +183,39 @@ def play():
             else:
                 y = "0"
                 while True:
-                    while y != 1 and y != 2:
+                    while y != "1" and y != "2":
                         y = input("Choose a trap card to play the liability with: (Pick 1 or 2):")
-                    if (turn % 2 == 1 and (hand1[int(y) - 1] < 8 or hand1[int(y) - 1] == 14)) or (turn % 2 == 0 and (hand2[int(y) - 1] < 8 or hand2[int(y) - 1] == 14)):
+                    if (turn % 2 == 1 and (hand1[int(y) - 1] < 8 or hand1[int(y) - 1] == 14)) or (
+                            turn % 2 == 0 and (hand2[int(y) - 1] < 8 or hand2[int(y) - 1] == 14)):
+                        y = "0"
                         continue
                     break
                 if turn % 2 == 1:
                     x = hand1.pop(int(y) - 1)
                     discard.append(x)
-                    hand1.append(draw())
+                    hand1.append(draw_())
                 else:
                     x = hand2.pop(int(y) - 1)
                     discard.append(x)
-                    hand2.append(draw())
+                    hand2.append(draw_())
+                check()
                 power = True
                 if x == 12:
                     if turn % 2 == 1:
                         print(Fore.YELLOW + "You have removed " + str(
-                            cards[hand1.pop(random.randint(0, 2))]) + " and " + str(
-                            cards[hand1.pop(random.randint(0, 1))]) + " from your Opponent's hand." + Fore.WHITE)
-                        hand2.append(draw())
-                        hand2.append(draw())
-                    else:
-                        print(Fore.YELLOW + "You have removed " + str(
                             cards[hand2.pop(random.randint(0, 2))]) + " and " + str(
                             cards[hand2.pop(random.randint(0, 1))]) + " from your Opponent's hand." + Fore.WHITE)
-                        hand1.append(draw())
-                        hand1.append(draw())
-                    
+                        hand2.append(draw_())
+                        hand2.append(draw_())
+                        check()
+                    else:
+                        print(Fore.YELLOW + "You have removed " + str(
+                            cards[hand1.pop(random.randint(0, 2))]) + " and " + str(
+                            cards[hand1.pop(random.randint(0, 1))]) + " from your Opponent's hand." + Fore.WHITE)
+                        hand1.append(draw_())
+                        hand1.append(draw_())
+                        check()
+
         if turn % 2 == 1:
             hand1.append(draw())
         else:
@@ -208,14 +225,19 @@ def play():
     return x
 
 
-for i in range(3):
-    hand1.append(draw())
-for i in range(3):
-    hand2.append(draw())
+hand1 = [draw_(), draw_(), draw_()]
+
+hand2 = [draw_(), draw_(), draw_()]
 check()
+
 p1 = Car()
 p2 = Car()
 race = Race(p1, p2)
+
+#intro
+print("Welcome to Race of the Draw!")
+print("Each turn, you get to play from three cards an action:")
+
 while True:
     card = play()
     race.update_progress(turn - 1, card, power)
