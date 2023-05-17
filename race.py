@@ -11,6 +11,7 @@ class Car:
         self.sprite = 'CAR'
         self.is_spiked = [False, 0]
         self.is_overheated = [False, 0]
+        self.is_protected = False
 
     def change_health(self, amount: int) -> None:
         if self.health + amount >= 0:
@@ -27,7 +28,7 @@ class Car:
     def update_progress(self) -> int:
         self.progress += int(self.speed / 10)
         if self.health <= 0:
-            self.sprite = 'DED'
+            self.sprite = 'DEAD'
         return self.progress
 
     # spike and overheat don't stack w/ themselves
@@ -39,99 +40,154 @@ class Car:
 
 
 class Race:
-    def v8(self, player: int) -> None:
+    def v8(self, player: int, is_power: bool) -> None:
+        value = 30 if is_power else 20
         if player == 1:
-            self.p1.change_speed(20)
+            self.p1.change_speed(value)
         elif player == 2:
-            self.p2.change_speed(20)
-        print(Fore.YELLOW + "+20 Speed." + Fore.WHITE)
+            self.p2.change_speed(value)
+        print(Fore.YELLOW + f"+{str(value)} Speed." + Fore.WHITE)
 
-    def chassis(self, player: int) -> None:
+    def chassis(self, player: int, is_power: bool) -> None:
+        value = 40 if is_power else 30
+        neg_value = -15 if is_power else -10
         if player == 1:
-            self.p1.change_speed(30)
-            self.p1.change_health(-10)
+            self.p1.change_speed(value)
+            self.p1.change_health(neg_value)
         elif player == 2:
-            self.p2.change_speed(30)
-            self.p2.change_health(-10)
-        print(Fore.YELLOW + "+30 Speed, -10 Health." + Fore.WHITE)
+            self.p2.change_speed(value)
+            self.p2.change_health(neg_value)
+        print(Fore.YELLOW + f"+{str(value)} Speed, {str(neg_value)} Health." + Fore.WHITE)
 
-    def fix(self, player: int) -> None:
+    def fix(self, player: int, is_power: bool) -> None:
+
         if player == 1:
+            if is_power:
+                self.p1.is_protected = True
             self.p1.is_spiked = [False, 0]
             self.p1.is_overheated = [False, 0]
         elif player == 2:
+            if is_power:
+                self.p2.is_protected = True
             self.p2.is_spiked = [False, 0]
             self.p2.is_overheated = [False, 0]
-        print(Fore.YELLOW + "All DoT effects removed." + Fore.WHITE)
+        print(Fore.YELLOW + "All DoT effects removed." + (" And protected next turn." if is_power else "") + Fore.WHITE)
 
-    def repair(self, player: int) -> None:
+    def repair(self, player: int, is_power: bool) -> None:
+        value = 30 if is_power else 20
         if player == 1:
-            self.p1.change_health(20)
+            self.p1.change_health(value)
         elif player == 2:
-            self.p2.change_health(20)
-        print(Fore.YELLOW + "+20 Health." + Fore.WHITE)
+            self.p2.change_health(value)
+        print(Fore.YELLOW + f"+{str(value)} Health." + Fore.WHITE)
 
-    def spikes(self, player: int) -> None:
+    def spikes(self, player: int, is_power: bool) -> None:
         if player == 1:
+            if self.p2.is_protected:
+                print(Fore.YELLOW + "P2 was Protected! No Damage done" + Fore.WHITE)
+                return
             self.p2.spike()
+            if is_power:
+                self.p2.change_speed(-5)
         elif player == 2:
+            if self.p1.is_protected:
+                print(Fore.YELLOW + "P1 was Protected! No Damage done" + Fore.WHITE)
+                return
             self.p1.spike()
-        print(Fore.YELLOW + "Your opponent was spiked." + Fore.WHITE)
+            if is_power:
+                self.p1.change_speed(-5)
 
-    def weight(self, player: int) -> None:
+        print(Fore.YELLOW + "Your opponent was spiked." + (
+            " It hit extra hard! Opponent -5 Speed" if is_power else "") + Fore.WHITE)
+
+    def weight(self, player: int, is_power: bool) -> None:
+        value = -30 if is_power else -20
         if player == 1:
-            self.p2.change_speed(-20)
+            if self.p2.is_protected:
+                print(Fore.YELLOW + "P2 was Protected! No Damage done" + Fore.WHITE)
+                return
+            self.p2.change_speed(value)
         elif player == 2:
-            self.p1.change_speed(-20)
-        print(Fore.YELLOW + "Opponent -20 Speed." + Fore.WHITE)
+            if self.p1.is_protected:
+                print(Fore.YELLOW + "P1 was Protected! No Damage done" + Fore.WHITE)
+                return
+            self.p1.change_speed(value)
+        print(Fore.YELLOW + f"Opponent {str(value)} Speed." + Fore.WHITE)
 
-    def explosive(self, player: int) -> None:
+    def explosive(self, player: int, is_power: bool) -> None:
+        value = -40 if is_power else -30
+        neg_value = -15 if is_power else -10
         did_self_dmg = False
         if player == 1:
-            self.p2.change_health(-30)
+            if self.p2.is_protected:
+                print(Fore.YELLOW + "P2 was Protected! No Damage done" + Fore.WHITE)
+                return
+            self.p2.change_health(value)
             if random.choice([True, False]):
-                self.p1.change_health(-10)
+                self.p1.change_health(neg_value)
                 did_self_dmg = True
         elif player == 2:
-            self.p1.change_health(-30)
+            if self.p1.is_protected:
+                print(Fore.YELLOW + "P1 was Protected! No Damage done" + Fore.WHITE)
+                return
+            self.p1.change_health(value)
             if random.choice([True, False]):
-                self.p2.change_health(-10)
+                self.p2.change_health(neg_value)
                 did_self_dmg = True
 
         if did_self_dmg:
-            out = "Opponent -30 Health. But you damaged yourself in the process. Self -10 Health."
+            out = f"Opponent {str(value)} Health. But you damaged yourself in the process. Self {str(neg_value)} Health."
         else:
-            out = "Opponent -30 Health."
+            out = f"Opponent {str(value)} Health."
 
         print(Fore.YELLOW + out + Fore.WHITE)
 
-    def overheat(self, player: int) -> None:
+    def overheat(self, player: int, is_power: bool) -> None:
         if player == 1:
+            if self.p2.is_protected:
+                print(Fore.YELLOW + "P2 was Protected! No Damage done" + Fore.WHITE)
+                return
             self.p2.overheat()
+            if is_power:
+                self.p2.change_health(-5)
         elif player == 2:
+            if self.p1.is_protected:
+                print(Fore.YELLOW + "P1 was Protected! No Damage done" + Fore.WHITE)
+                return
             self.p1.overheat()
-        print(Fore.YELLOW + "Opponent has Overheated." + Fore.WHITE)
+            if is_power:
+                self.p1.change_health(-5)
+        print(Fore.YELLOW + "Opponent has Overheated." + (
+            " It hit extra hard! Opponent -5 Health" if is_power else "") + Fore.WHITE)
 
-    def speed_limit(self, player: int) -> None:
+    def speed_limit(self, player: int, is_power: bool) -> None:
         self_got_caught = False
         opp_got_caught = False
         limit = random.randint(20, 80)
         print(Fore.YELLOW + "The speed limit is " + str(limit) + Fore.WHITE)
 
         if player == 1:
+            if self.p2.is_protected:
+                print(Fore.YELLOW + "P2 was Protected! No Damage done" + Fore.WHITE)
+                return
             if self.p2.speed >= limit:
                 self.p2.change_speed(-30)
                 opp_got_caught = True
             if self.p1.speed >= limit and random.choice([True, False]):
-                self.p1.change_speed(-10)
-                self_got_caught = True
+                if not is_power:
+                    self.p1.change_speed(-10)
+                    self_got_caught = True
         elif player == 2:
+            if self.p1.is_protected:
+                print(Fore.YELLOW + "P1 was Protected! No Damage done" + Fore.WHITE)
+                return
             if self.p1.speed >= limit:
                 self.p1.change_speed(-30)
                 opp_got_caught = True
             if self.p2.speed >= limit and random.choice([True, False]):
-                self.p2.change_speed(-10)
-                self_got_caught = True
+                if not is_power:
+                    self.p2.change_speed(-10)
+                    self_got_caught = True
 
         out = ""
         if opp_got_caught:
@@ -141,7 +197,7 @@ class Race:
 
         print(Fore.YELLOW + out + Fore.WHITE)
 
-    def nothing(self, unused: int):  # do nothing
+    def nothing(self, _: int, __: bool):  # do nothing
         pass
 
     def __init__(self, p1: Car, p2: Car) -> None:
@@ -165,66 +221,76 @@ class Race:
             return True
         return False
 
-    def update_progress(self, turn: int, card: int) -> None:
+    def update_progress(self, turn: int, card: int, is_power: bool) -> None:
         if turn % 2 == 1:
+            if self.p1.is_protected:
+                self.p1.is_protected = False
             # call card
-            self.call_dict[card](1)
+            self.call_dict[card](1, is_power)
             # update
             self.p1.update_progress()
         if turn % 2 == 0:
+            if self.p2.is_protected:
+                self.p2.is_protected = False
             # call card
-            self.call_dict[card](2)
+            self.call_dict[card](2, is_power)
             # update
             self.p2.update_progress()
 
-        # spikes p1
-        if self.p1.is_spiked[0]:
-            self.p1.change_speed(-self.p1.is_spiked[1])
-            print(Fore.YELLOW + "P1 is affected by Spikes. P1 " + str(-self.p1.is_spiked[1]) + " Speed" + Fore.WHITE)
+        if self.p1.is_protected:
+            print(Fore.YELLOW + "P1 is protected, no existing DoT will be applied." + Fore.WHITE)
+        else:
+            # spikes p1
+            if self.p1.is_spiked[0]:
+                self.p1.change_speed(-self.p1.is_spiked[1])
+                print(Fore.YELLOW + "P1 is affected by Spikes. P1 " + str(-self.p1.is_spiked[1]) + " Speed" + Fore.WHITE)
 
-            if self.p1.is_spiked[1] >= 20:
-                self.p1.is_spiked = [False, 0]
-                print(Fore.YELLOW + "P1 found a spare tire! P1 is no longer affected by Spikes" + Fore.WHITE)
-            else:
-                self.p1.is_spiked[1] += 5
+                if self.p1.is_spiked[1] >= 20:
+                    self.p1.is_spiked = [False, 0]
+                    print(Fore.YELLOW + "P1 found a spare tire! P1 is no longer affected by Spikes" + Fore.WHITE)
+                else:
+                    self.p1.is_spiked[1] += 5
 
-        # overheat p1
-        if self.p1.is_overheated[0]:
-            if self.p1.is_overheated[1] <= 0:
-                self.p1.change_health(-15)
-                self.p1.is_overheated = [False, 0]
-                print(Fore.YELLOW + "P1 found a coolant! P1 is no longer Overheating" + Fore.WHITE)
-            else:
-                self.p1.change_health(-(self.p1.is_overheated[1] * 5))
-                print(Fore.YELLOW + "P1 is Overheating. P1 " + str(
-                    -self.p1.is_overheated[1] * 5) + " Health" + Fore.WHITE)
-                self.p1.is_overheated[1] -= 1
+            # overheat p1
+            if self.p1.is_overheated[0]:
+                if self.p1.is_overheated[1] <= 0:
+                    self.p1.change_health(-15)
+                    self.p1.is_overheated = [False, 0]
+                    print(Fore.YELLOW + "P1 found a coolant! P1 is no longer Overheating" + Fore.WHITE)
+                else:
+                    self.p1.change_health(-(self.p1.is_overheated[1] * 5))
+                    print(Fore.YELLOW + "P1 is Overheating. P1 " + str(
+                        -self.p1.is_overheated[1] * 5) + " Health" + Fore.WHITE)
+                    self.p1.is_overheated[1] -= 1
 
-        # spikes p2
-        if self.p2.is_spiked[0]:
-            self.p2.change_speed(-self.p2.is_spiked[1])
-            print(Fore.YELLOW + "P2 is affected by Spikes. P2 " + str(-self.p2.is_spiked[1]) + " Speed" + Fore.WHITE)
-            if self.p2.is_spiked[1] >= 20:
-                self.p2.is_spiked = [False, 0]
-                print(Fore.YELLOW + "P2 found a spare tire! P2 is no longer affected by Spikes" + Fore.WHITE)
-            else:
-                self.p2.is_spiked[1] += 5
+        if self.p2.is_protected:
+            print(Fore.YELLOW + "P2 is protected, no existing DoT will be applied." + Fore.WHITE)
+        else:
+            # spikes p2
+            if self.p2.is_spiked[0]:
+                self.p2.change_speed(-self.p2.is_spiked[1])
+                print(Fore.YELLOW + "P2 is affected by Spikes. P2 " + str(-self.p2.is_spiked[1]) + " Speed" + Fore.WHITE)
+                if self.p2.is_spiked[1] >= 20:
+                    self.p2.is_spiked = [False, 0]
+                    print(Fore.YELLOW + "P2 found a spare tire! P2 is no longer affected by Spikes" + Fore.WHITE)
+                else:
+                    self.p2.is_spiked[1] += 5
 
-        # overheat p2
-        if self.p2.is_overheated[0]:
-            if self.p2.is_overheated[1] <= 0:
-                self.p2.is_overheated = [False, 0]
-                print(Fore.YELLOW + "P2 found a coolant! P2 is no longer Overheating" + Fore.WHITE)
-            else:
-                self.p2.change_health(-(self.p2.is_overheated[1] * 5))
-                print(Fore.YELLOW + "P2 is Overheating. P2 " + str(
-                    -self.p2.is_overheated[1] * 5) + " Health" + Fore.WHITE)
-                self.p2.is_overheated[1] -= 1
-                
+            # overheat p2
+            if self.p2.is_overheated[0]:
+                if self.p2.is_overheated[1] <= 0:
+                    self.p2.is_overheated = [False, 0]
+                    print(Fore.YELLOW + "P2 found a coolant! P2 is no longer Overheating" + Fore.WHITE)
+                else:
+                    self.p2.change_health(-(self.p2.is_overheated[1] * 5))
+                    print(Fore.YELLOW + "P2 is Overheating. P2 " + str(
+                        -self.p2.is_overheated[1] * 5) + " Health" + Fore.WHITE)
+                    self.p2.is_overheated[1] -= 1
+
         if self.p1.health <= 0:
-            self.p1.sprite = 'DED'
+            self.p1.sprite = 'DEAD'
         if self.p2.health <= 0:
-            self.p2.sprite = 'DED'
+            self.p2.sprite = 'DEAD'
 
     def print_progress(self, turn, include_status: bool = True) -> None:
         print(Fore.BLUE + "P1: " + (30 - self.p1.progress) * '_' + self.p1.sprite + (self.p1.progress * '_'))
@@ -237,7 +303,7 @@ class Race:
             print(Fore.BLUE + "P1 WON!")
         if self.has_p2_won():
             print(Fore.RED + "P2 WON!")
-        
+
         if include_status:
             if turn % 2 == 0:
                 print(Fore.LIGHTGREEN_EX + "P1 Statuses:", end="")
