@@ -1,6 +1,7 @@
 # 1-7: Upgrades, 8-14: Traps
+import os
 import random
-from Race import Race, Car
+from race import Race, Car
 from colorama import Fore
 
 cards = {1: "V8 Engine", 2: "Carbon-fiber Chassis", 3: "Fix", 4: "Repair", 5: "Camera", 6: "Spare Parts", 7: "Asset",
@@ -234,10 +235,49 @@ p1 = Car()
 p2 = Car()
 race = Race(p1, p2)
 
-#intro
+# intro
+print("This game should be run in a Python IDE. Do the following for correct gameplay:")
+print("Change your IDE Console's run configurations to emulate the Terminal")
+input("Press enter when you're finished reading: ")
+os.system('cls')
 print("Welcome to Race of the Draw!")
 print("Each turn, you get to play from three cards an action:")
-
+print("Upgrade Cards, which help you, or")
+print("Trap Cards, which harm your opponent!")
+print("At the beginning and end of each turn, you will see")
+print("the progress your cars have made!\n")
+print("Cars have two stats: Health and Speed. Speed lets you")
+print("go farther on the track (0 speed means you're not")
+print("moving), and if your health reaches 0, your car combusts")
+print("and you lose!")
+input("Press enter when you're finished reading: ")
+os.system('cls')
+print("Upgrade Cards:")
+print("V8 Engine: +20 Speed")
+print("Carbon-fiber Chassis: +30 Speed, -10 Health")
+print("Fix: Removes DoT effects")
+print("Repair: +20 Health")
+print("Camera: See opponent's hand")
+print("Spare Parts: Discard and draw one/both of remaining cards")
+print("Asset: Played with any upgrade (except camera) to enhance it")
+print("\n")
+print("Trap Cards:")
+print("Spikes: Increasing speed DoT for 3 turns")
+print("Weight: Opponent -20 Speed")
+print("Explosive: Opponent -30 Health, 50% Chance -10 Health to self")
+print("Overheat: Decreasing health DoT for 3 turns")
+print("Reporter: Remove a random card from opponent's hand (and see it)")
+print("Speed Limit: Opponent -30 Speed if above random limit, 50% Chance -10 Speed to self if above limit")
+print("Liability: Played with any trap to enhance it")
+print("\n")
+input("Press enter when you're finished reading: ")
+os.system('cls')
+print("Each car starts with 100 health and 30 speed. It can go over these, but not under 0.")
+print("Players win if the other player explodes (0 health) or if they cross the finish line!")
+print("This is a passing game. Hand the computer to Player 1. When P1's turn is done, pass to")
+print("P2, etc. until someone wins. Enjoy!")
+input("Press enter when you're finished reading: ")
+os.system('cls')
 while True:
     card = play()
     race.update_progress(turn - 1, card, power)
