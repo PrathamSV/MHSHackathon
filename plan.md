@@ -1,4 +1,4 @@
-## Cards :- Upgrades 1-7, Traps 8-14
+Cards :- Upgrades 1-7, Traps 8-14
 ```python
 cards = {1:"V8 Engine", 2:"Carbon-fiber Chassis", 3:"Fix", 4:"Repair", 5:"Camera", 6:"Spare Parts", 7:"Asset", 
 8: "Spikes", 9:"Weight", 10:"Explosive", 11:"Overheat", 12:"Reporter", 13:"Speed Limit", 14:"Liability"}
